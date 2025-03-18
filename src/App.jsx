@@ -13,7 +13,7 @@ import { motion } from 'framer-motion'
 import './styles/locomotive-scroll.css'
 
 function App() {
-  const scrollRef = useRef(null);
+  const scrollRef = useRef(null); 
 
   useEffect(() => {
     // Import locomotive-scroll dynamically to avoid build issues
