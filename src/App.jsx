@@ -8,47 +8,59 @@ import Feature from './components/Feature'
 import Cards from './components/Cards'
 import Footeye from './components/Footeye'
 import Footer from './components/Footer'
-import LocomotiveScroll from 'locomotive-scroll';
 import { motion } from 'framer-motion'
-import 'locomotive-scroll/locomotive-scroll.css';
+// Import CSS without the package
+import './styles/locomotive-scroll.css'
 
 function App() {
   const scrollRef = useRef(null);
 
   useEffect(() => {
-    // Initialize Locomotive Scroll with smooth scrolling options
-    const locomotiveScroll = new LocomotiveScroll({
-      el: scrollRef.current,
-      smooth: true,
-      smoothMobile: false,
-      multiplier: 1,
-      class: "is-revealed",
-      lerp: 0.05, // Linear interpolation, adjust for smoothness
-      getDirection: true, // Enable for direction-aware animations
-      getSpeed: true,     // Enable for speed-aware animations
-    });
+    // Import locomotive-scroll dynamically to avoid build issues
+    const initLocomotiveScroll = async () => {
+      try {
+        const LocomotiveScroll = (await import('locomotive-scroll')).default;
+        
+        // Initialize Locomotive Scroll with smooth scrolling options
+        const locomotiveScroll = new LocomotiveScroll({
+          el: scrollRef.current,
+          smooth: true,
+          smoothMobile: false,
+          multiplier: 1,
+          class: "is-revealed",
+          lerp: 0.05, // Linear interpolation, adjust for smoothness
+          getDirection: true, // Enable for direction-aware animations
+          getSpeed: true,     // Enable for speed-aware animations
+        });
 
-    // Refresh scroll on window resize
-    const handleResize = () => {
-      if (locomotiveScroll) {
-        // locomotiveScroll.update();
+        // Refresh scroll on window resize
+        const handleResize = () => {
+          if (locomotiveScroll) {
+            locomotiveScroll.update();
+          }
+        };
+
+        window.addEventListener('resize', handleResize);
+
+        // Refresh locomotive scroll on page load
+        setTimeout(() => {
+          locomotiveScroll.update();
+        }, 500);
+
+        // Clean up locomotive scroll instance
+        return () => {
+          window.removeEventListener('resize', handleResize);
+          if (locomotiveScroll) locomotiveScroll.destroy();
+        };
+      } catch (error) {
+        console.error("Failed to initialize Locomotive Scroll:", error);
       }
     };
 
-    window.addEventListener('resize', handleResize);
-
-    // Refresh locomotive scroll on page load
-    setTimeout(() => {
-      // locomotiveScroll.update();
-    }, 500);
-
-    // Clean up locomotive scroll instance
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      locomotiveScroll.destroy();
-    };
+    initLocomotiveScroll();
   }, []);
 
+  // Rest of your component remains the same
   return (
     <motion.div
       initial={{ opacity: 0 }}
